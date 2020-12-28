@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cyw.info_admin.dao.TupMapper">
+  <resultMap id="BaseResultMap" type="com.cyw.info_admin.entity.Tup">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tpid" jdbcType="BIGINT" property="tpid" />
+    <result column="tuid" jdbcType="BIGINT" property="tuid" />
+    <result column="username" jdbcType="VARCHAR" property="username"/>
+    <result column="pname" jdbcType="VARCHAR" property="pname"/>
+    <result column="submit_number" jdbcType="VARCHAR" property="submitNumber" />
+    <result column="tpcount" jdbcType="BIGINT" property="tpcount" />
+    <result column="ptotal" jdbcType="DECIMAL" property="ptotal" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="updatetime" jdbcType="TIMESTAMP" property="updatetime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, tpid, tuid, username, pname, submit_number, tpcount, ptotal, status, createtime, updatetime
+  </sql>
+
+  <!--复合条件分页查询-->
+  <select id="pageListByQuery" parameterType="com.cyw.info_admin.entity.query.TupPageQuery" resultMap="BaseResultMap">
+    select *
+    from tup t
+    <where>
+      <if test="username != null">
+        and t.username like concat('%', #{username}, '%')
+      </if>
+      <if test="status != null">
+        and t.status = #{status,jdbcType=BIGINT}
+      </if>
+      <if test="submitBegintime != null">
+        <![CDATA[and t.createtime >= #{submitBegintime,jdbcType=TIMESTAMP}]]>
+      </if>
+      <if test="submitEndtime != null">
+        <![CDATA[and t.createtime <= #{submitEndtime,jdbcType=TIMESTAMP}]]>
+      </if>
+    </where>
+  </select>
+
+  <!--根据主键获取物品提交记录-->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tup
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tup
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.cyw.info_admin.entity.Tup">
+    update tup
+    <set>
+      <if test="tpid != null">
+        tpid = #{tpid,jdbcType=BIGINT},
+      </if>
+      <if test="tuid != null">
+        tuid = #{tuid,jdbcType=BIGINT},
+      </if>
+      <if test="tpcount != null">
+        tpcount = #{tpcount,jdbcType=BIGINT},
+      </if>
+      <if test="ptotal != null">
+        ptotal = #{ptotal,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cyw.info_admin.entity.Tup">
+    update tup
+    set tpid = #{tpid,jdbcType=BIGINT},
+      tuid = #{tuid,jdbcType=BIGINT},
+      tpcount = #{tpcount,jdbcType=BIGINT},
+      ptotal = #{ptotal,jdbcType=DOUBLE}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!--根据主键修改状态-->
+  <update id="updateStatusById">
+    update tup
+    set status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!--批量修改提交数据的状态-->
+  <update id="batchUpdateStatusById">
+    update tup
+    set status = #{status,jdbcType=INTEGER}
+    where id in
+    <foreach collection="idList" item="id" separator="," open="(" close=")">
+      #{id,jdbcType=BIGINT}
+    </foreach>
+  </update>
+</mapper>
